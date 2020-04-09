@@ -19,13 +19,6 @@ export default function UploadForm(props) {
     setFilePreview(URL.createObjectURL(acceptedFiles[0]));
   }
 
-  function handleChange(e) {
-    setUploadOptions({
-      ...uploadOptions,
-      public_id: e.target.value
-    });
-  }
-
   function onSubmit(file, options) {
     const reader = new FileReader();
     reader.addEventListener("load", () => {
@@ -107,7 +100,14 @@ export default function UploadForm(props) {
           Successfully Uploaded!
         </p>
       }
-      <input css={textInput} type="text" placeholder="Title" onChange={e => handleChange(e)} />
+      <input css={textInput} type="text" placeholder="Title" onChange={e => setUploadOptions({
+        ...uploadOptions,
+        public_id: e.target.value
+      })} />
+      <input css={textInput} type="text" placeholder="Tags" onChange={e => setUploadOptions({
+        ...uploadOptions,
+        tags: [e.target.value]
+      })} />
       <div css={dropzone} {...getRootProps()}>
         <input {...getInputProps()} />
         <p css={dropzoneText}>Choose file to upload...</p>
