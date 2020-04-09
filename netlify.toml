@@ -1,3 +1,4 @@
 [build]
   functions = "./functions"
-  command = "make install"
+  publish = "out"
+  command = "cd functions && npm i && cd .. && npm run deploy"
