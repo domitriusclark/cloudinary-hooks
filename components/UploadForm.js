@@ -5,7 +5,7 @@ import useCloudinaryUpload from '../hooks/useCloudinaryUpload';
 
 
 export default function UploadForm(props) {
-  const uploadImage = useCloudinaryUpload();
+  const [uploadImage, data] = useCloudinaryUpload();
 
   const [uploadOptions, setUploadOptions] = React.useState({});
   const [fileToUpload, setFileToUpload] = React.useState({});
@@ -113,6 +113,7 @@ export default function UploadForm(props) {
         <p css={dropzoneText}>Choose file to upload...</p>
       </div>
       <button css={uploadButton} onClick={() => onSubmit(fileToUpload, uploadOptions)}> Upload Photo</button>
+      {data && <img src={data.url} alt={`${data.public_id}`} />}
     </div>
   );
 };

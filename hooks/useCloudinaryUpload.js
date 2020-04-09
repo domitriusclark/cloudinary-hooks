@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { useMutation } from 'react-query'
 import fetch from 'isomorphic-unfetch';
 
 export default function useCloudinaryUpload() {
+  const [uploadedImageData, setUploadedImageData] = useState();
   const [mutate] = useMutation(async ({ file, uploadOptions, }) => {
-    const uploadedImage = await fetch('/.netlify/functions/upload', {
+    const res = await fetch('/.netlify/functions/upload', {
       method: 'POST',
       body: JSON.stringify({
         tags: uploadOptions.tags,
@@ -12,9 +14,14 @@ export default function useCloudinaryUpload() {
       })
     });
 
-    return uploadedImage;
+    return res.json();
+  }, {
+    onSuccess: data => {
+      console.log(data);
+      return setUploadedImageData(data)
+    }
   })
 
-  return mutate;
+  return [mutate, uploadedImageData];
 }
 
