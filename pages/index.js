@@ -2,7 +2,7 @@ import useCloudinaryImage from '../hooks/useCloudinaryImage';
 
 import UploadForm from '../components/UploadForm';
 const Home = () => {
-  const [cloudinary, images, status] = useCloudinaryImage({ cloud_name: "treasureChest" });
+  const [cloudinary, images, status] = useCloudinaryImage({ cloud_name: "testing-hooks-upload" });
 
   const [input, setInput] = React.useState();
 
