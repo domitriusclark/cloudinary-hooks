@@ -13,6 +13,8 @@
     "@chakra-ui/core": "^0.7.0",
     "@emotion/core": "^10.0.28",
     "@emotion/styled": "^10.0.27",
+    "@jlengstorf/get-share-image": "^0.7.0",
+    "cloudinary": "^1.21.0",
     "cloudinary-core": "^2.8.2",
     "emotion-theming": "^10.0.27",
     "isomorphic-unfetch": "^3.0.0",
@@ -21,6 +23,7 @@
     "react-dom": "16.13.1",
     "react-dropzone": "^10.2.2",
     "react-query": "^1.2.1",
-    "react-query-devtools": "^1.0.13"
+    "react-query-devtools": "^1.0.13",
+    "save": "^2.4.0"
   }
 }

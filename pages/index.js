@@ -1,30 +1,51 @@
-import useCloudinaryImage from '../hooks/useCloudinaryImage';
+import { useImage } from '../hooks/useCloudinary';
+import { ThemeProvider, Flex, Button } from "@chakra-ui/core";
 
-import UploadForm from '../components/UploadForm';
+import CreateTemplate from '../components/TemplateSelect';
+
 const Home = () => {
-  const [cloudinary, images, status] = useCloudinaryImage({ cloud_name: "testing-hooks-upload" });
+  const [cloudinary, images, status] = useImage({ cloud_name: "testing-hooks-upload" });
+  const [template, setTemplate] = React.useState()
+  React.useEffect(() => {
+    cloudinary.getImagesByTag('template');
+  }, []);
 
-  const [input, setInput] = React.useState();
+  if (status === "loading") return <p>Loading...</p>
 
-  if (status === "loading") return <p>Loading...</p>;
+  console.log(template)
 
   return (
-    <div>
-      <UploadForm />
-      <input onChange={e => setInput(e.target.value)} />
-      <button onClick={() => cloudinary.getImagesByTag(input)}>Search</button>
-      {images && images.resources.map(i =>
-        <img src={cloudinary.getImage(
-          {
-            image_name: i.public_id,
-            transform_options: {
-              width: 400,
-              height: 400
-            }
-          }
-        )} />
-      )}
-    </div>
+    <ThemeProvider>
+      <Flex direction="column" alignItems="center" justifyContent="space-between">
+        <CreateTemplate />
+        <Flex justifyContent="space-around">
+          {images && images.resources.map(i => (
+            <Flex alignItems="center" direction="column">
+              <img src={cloudinary.getImage({
+                public_id: i.public_id,
+                transform_options: {
+                  width: 0.2,
+                  border: '3px_solid_black'
+                }
+              })} />
+              <h3>{i.public_id}</h3>
+              Width: {i.width} --
+              Height: {i.height}
+              <Button onClick={() => setTemplate(i.public_id)}>Customize Template</Button>
+              {
+                template === i.public_id && <img src={cloudinary.customizeTemplate(template, {
+                  text: {
+                    title: "Testing the waters",
+                    subtext: "#does #this #work"
+                  },
+                  width: 0.2
+                })} />
+              }
+            </Flex>
+          ))}
+        </Flex>
+      </Flex >
+    </ThemeProvider>
   )
 
 }

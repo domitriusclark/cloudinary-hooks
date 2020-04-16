@@ -6,8 +6,8 @@ cloudinary.config({
   api_secret: process.env.API_SECRET
 })
 
-exports.handler = async (event) => {
-  const { public_id, file, tags, eager } = JSON.parse(event.body);
+export default async function (req) {
+  const { public_id, file, tags, eager } = JSON.parse(req.body);
 
   const res = await cloudinary.uploader.upload(file, {
     public_id,
@@ -18,9 +18,6 @@ exports.handler = async (event) => {
 
   return {
     statusCode: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*'
-    },
     body: JSON.stringify(res)
   }
 }

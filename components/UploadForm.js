@@ -1,16 +1,15 @@
 /** @jsx jsx  */
 import { css, jsx } from '@emotion/core';
 import { useDropzone } from 'react-dropzone';
-import useCloudinaryUpload from '../hooks/useCloudinaryUpload';
+import { useUpload } from '../hooks/useCloudinary';
 
 
 export default function UploadForm(props) {
-  const [uploadImage, data] = useCloudinaryUpload();
+  const [upload, data, status, error] = useUpload({ endpoint: '/.netlify/functions/upload' });
 
   const [uploadOptions, setUploadOptions] = React.useState({});
   const [fileToUpload, setFileToUpload] = React.useState({});
   const [filePreview, setFilePreview] = React.useState();
-  const [uploadSuccess, setUploadSuccess] = React.useState(false);
 
   const { getRootProps, getInputProps } = useDropzone({ onDrop })
 
@@ -22,7 +21,7 @@ export default function UploadForm(props) {
   function onSubmit(file, options) {
     const reader = new FileReader();
     reader.addEventListener("load", () => {
-      uploadImage({
+      upload({
         file: reader.result,
         uploadOptions: options
       })
@@ -88,18 +87,14 @@ export default function UploadForm(props) {
     cursor: pointer;
     border: none;
     box-shadow: 5px 8px 10px rgba(0, 0, 0, 0.4);
-  `
+  `;
+
+  if (status === "error") return <p>{error.message}</p>
 
   return (
     <div css={container}>
       <h1>Upload to Cloudinary</h1>
-      {
-        uploadSuccess && <p css={css`
-          color: lightgreen;
-        `}>
-          Successfully Uploaded!
-        </p>
-      }
+      <p>{status === "success" && "Successfully uploaded!"}</p>
       <input css={textInput} type="text" placeholder="Title" onChange={e => setUploadOptions({
         ...uploadOptions,
         public_id: e.target.value
