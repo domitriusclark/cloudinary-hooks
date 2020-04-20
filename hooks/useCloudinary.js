@@ -1,7 +1,7 @@
-import useImage from './useImage';
+import useMedia from './useMedia';
 import useUpload from './useUpload';
 
 export {
-  useImage,
+  useMedia,
   useUpload
 }

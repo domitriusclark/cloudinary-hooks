@@ -15,7 +15,7 @@ export default function TemplateSelect() {
         <option value="instagram-story">Instagram Story</option>
 
       </Select>
-      <Button onClick={() => createTemplate(item)}>Generate Template</Button>
+      <Button onClick={() => createTemplate(item)}>Generate</Button>
     </Flex>
 
   )

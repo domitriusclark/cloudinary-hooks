@@ -1,21 +1,37 @@
-/** @jsx jsx  */
-import { css, jsx } from '@emotion/core';
+import React from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useUpload } from '../hooks/useCloudinary';
 
+import {
+  Text,
+  Button,
+  Input,
+  InputGroup,
+  InputRightElement,
+  IconButton,
+  Stack,
+  Tag,
+  TagCloseButton,
+  TagLabel,
+  useToast,
+  Flex,
+} from '@chakra-ui/core';
 
-export default function UploadForm(props) {
-  const [upload, data, status, error] = useUpload({ endpoint: '/.netlify/functions/upload' });
-
-  const [uploadOptions, setUploadOptions] = React.useState({});
-  const [fileToUpload, setFileToUpload] = React.useState({});
-  const [filePreview, setFilePreview] = React.useState();
-
+export default function UploadForm() {
+  const toast = useToast();
+  const [{ upload }, data, status, error] = useUpload({ endpoint: '/.netlify/functions/upload' });
   const { getRootProps, getInputProps } = useDropzone({ onDrop })
 
+  const [uploadOptions, setUploadOptions] = React.useState({
+    public_id: "",
+    tags: []
+  });
+  const [fileToUpload, setFileToUpload] = React.useState({});
+  const [tag, setTag] = React.useState();
+
   function onDrop(acceptedFiles) {
+    console.log(acceptedFiles[0]);
     setFileToUpload(acceptedFiles[0]);
-    setFilePreview(URL.createObjectURL(acceptedFiles[0]));
   }
 
   function onSubmit(file, options) {
@@ -23,92 +39,105 @@ export default function UploadForm(props) {
     reader.addEventListener("load", () => {
       upload({
         file: reader.result,
-        uploadOptions: options
+        uploadOptions: {
+          ...options,
+          type: file.type,
+          size: file.size
+        }
       })
     })
     reader.readAsDataURL(file)
   }
 
-  const container = css`
-    color: white;
-    width: 490px;
-    height: 400px;
-    background: #393751;
-    border: none;
-    box-shadow: 5px 8px 26px rgba(0, 0, 0, 0.4);
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-evenly;
-
-    & h1 {
-      font-size: 32px;
-      letter-spacing: 2px;
-    }
-  `
-
-
-  const dropzone = css`
-    width: 379px;
-    height: 191px;
-    background: ${filePreview ? `url(${filePreview}) no-repeat` : '#2F2E45'};
-    background-size: cover;
-    border: 1px dashed #FFFFFF;
-    box-sizing: border - box;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  `;
-
-  const dropzoneText = css`
-    color: white;
-    font-size: 16px;
-  `
-
-  const textInput = css`
-    width: 379px;
-    height: 40px;
-    background: #FFFFFF;
-    border-radius: 4px;
-    border: none;
-    font-size: 14px;
-    padding-left: 8px;
-  `
-
-  const uploadButton = css`
-    width: 370px;
-    height: 35px;
-    background: #7A61DF;
-    border-radius: 8px;
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
-    border: none;
-    box-shadow: 5px 8px 10px rgba(0, 0, 0, 0.4);
-  `;
-
-  if (status === "error") return <p>{error.message}</p>
+  function Tags() {
+    return uploadOptions.tags.map(t => (
+      <Tag size="sm">
+        <TagLabel fontSize="8px">{t}</TagLabel>
+        <TagCloseButton onClick={() => setUploadOptions(prevData => ({
+          ...prevData,
+          tags: prevData.tags.filter(p => p !== t)
+        }))} />
+      </Tag>
+    ))
+  }
 
   return (
-    <div css={container}>
-      <h1>Upload to Cloudinary</h1>
-      <p>{status === "success" && "Successfully uploaded!"}</p>
-      <input css={textInput} type="text" placeholder="Title" onChange={e => setUploadOptions({
-        ...uploadOptions,
-        public_id: e.target.value
-      })} />
-      <input css={textInput} type="text" placeholder="Tags" onChange={e => setUploadOptions({
-        ...uploadOptions,
-        tags: [e.target.value]
-      })} />
-      <div css={dropzone} {...getRootProps()}>
+    <Flex
+      rounded="md"
+      alignItems="center"
+      justifyContent="center"
+      direction="column"
+      w={400}
+      height={300}
+    >
+
+      <Text fontSize="xl">Upload to Cloudinary</Text>
+
+      <Stack w="80%" spacing={2}>
+        <Input w="92%" size="sm" fontSize="sm" placeholder="Title" onChange={e => setUploadOptions({
+          ...uploadOptions,
+          public_id: e.target.value
+        })} />
+        <InputGroup size="sm" >
+          <Input placeholder="Tags" onChange={e => setTag(e.target.value)} />
+          <InputRightElement size="xs">
+            <IconButton size="xs" rounded="full" outline="none" onClick={() => setUploadOptions({
+              ...uploadOptions,
+              tags: [...uploadOptions.tags, tag]
+            })} icon="small-add" />
+          </InputRightElement>
+        </InputGroup>
+        <Stack mt="8px" mb="8px" isInline justifyContent="even" flexWrap="wrap">
+          {uploadOptions.tags && <Tags />}
+        </Stack>
+      </Stack>
+
+      <Flex
+        rounded="md"
+        border="2px solid black"
+        cursor="pointer"
+        h="200px"
+        width="80%"
+        alignSelf="center"
+        alignItems="center"
+        justifyContent="center"
+        {...getRootProps()}
+      >
         <input {...getInputProps()} />
-        <p css={dropzoneText}>Choose file to upload...</p>
-      </div>
-      <button css={uploadButton} onClick={() => onSubmit(fileToUpload, uploadOptions)}> Upload Photo</button>
+        <p>Choose file to upload...</p>
+      </Flex>
+
+      <Button
+        isLoading={status === "loading"}
+        size="lg"
+        loadingText="Submitting"
+        variantColor="teal"
+        variant="outline"
+        mt={4}
+        onClick={() => onSubmit(fileToUpload, uploadOptions)}
+      >
+        Upload Photo
+      </Button>
+
       {data && <img src={data.url} alt={`${data.public_id}`} />}
-    </div>
+
+      {status === "success" && toast({
+        position: "bottom-right",
+        title: "Successfully uploaded 🙌",
+        status: "success",
+        duration: 3000,
+        isClosable: true
+      })}
+
+      {status === "error" && toast({
+        position: "bottom-right",
+        title: "Error uploading 😭",
+        description: `${error.message}`,
+        status: "warning",
+        duration: 3000,
+        isClosable: true
+      })}
+
+    </Flex>
   );
 };

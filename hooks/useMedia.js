@@ -2,14 +2,14 @@ import * as React from 'react';
 import { useQuery } from 'react-query';
 import cloudinary from 'cloudinary-core'
 
-export default function useImage({ cloud_name }) {
+export default function useMedia({ cloud_name }) {
   const cld = cloudinary.Cloudinary.new({ cloud_name })
   let cloudinaryObject
 
   const [tag, setTag] = React.useState()
 
   // This request only fires when getImagesbyTag is called
-  const { data: taggedImageData, status, error } = useQuery(tag && ['images', tag], async (key, tag) => {
+  const { data: taggedImageData, status: taggedImageStatus, error: taggedImageError } = useQuery(tag && ['images', tag], async (key, tag) => {
     /*
 
      To enable the list type you must:
@@ -27,11 +27,34 @@ export default function useImage({ cloud_name }) {
     return cld.url(public_id, { ...transform_options, crop: 'scale' })
   }
 
+  function getVideo({ public_id, transform_options }) {
+    return cld.video_url(public_id, { ...transform_options })
+  }
+
 
   function getImagesByTag(tagName) {
     return setTag(tagName)
   }
 
+  function createTransform(options) {
+    return fetch('/api/createTransorm', {
+      method: "POST",
+      body: {
+        options
+      }
+    })
+  }
+
+  function getGifFromVideo({ public_id, transform_options }) {
+    return cld.video_url(`${public_id}.gif`, {
+      videoSampling: transform_options.videoSampling || '',
+      delay: transform_options.delay || '',
+      flags: "animated",
+      fetchFormat: "auto",
+      effect: "loop",
+      ...transform_options
+    })
+  }
 
   function customizeTemplate(type, transform_options) {
     switch (type) {
@@ -148,10 +171,18 @@ export default function useImage({ cloud_name }) {
 
   cloudinaryObject = {
     getImage,
-    getImagesByTag,
-    customizeTemplate
+    getVideo,
+    getGifFromVideo,
+    getImagesByTag: {
+      getImagesByTag,
+      taggedImageData,
+      taggedImageStatus,
+      taggedImageError
+    },
+    customizeTemplate,
+    createTransform
   }
 
-  return [cloudinaryObject, taggedImageData, status, error]
+  return [cloudinaryObject]
 
 }
