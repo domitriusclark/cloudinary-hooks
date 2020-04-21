@@ -6,18 +6,18 @@ export default function useMedia({ cloud_name }) {
   const cld = cloudinary.Cloudinary.new({ cloud_name })
   let cloudinaryObject
 
-  const [tag, setTag] = React.useState()
+  const [tag, setTag] = React.useState();
 
-  // This request only fires when getImagesbyTag is called
+  /*
+  
+  This request only fires when getImagesbyTag is called
+  To enable the list type you must:
+    1. Go to your account Settings
+    2. Click Security
+    3. Inside 'Restricted media types' uncheck 'Resource list'
+
+  */
   const { data: taggedImageData, status: taggedImageStatus, error: taggedImageError } = useQuery(tag && ['images', tag], async (key, tag) => {
-    /*
-
-     To enable the list type you must:
-      1. Go to your account Settings
-      2. Click Security
-      3. Inside 'Restricted media types' uncheck 'Resource list'
-
-    */
     const url = await cld.url(`${tag}.json`, { type: 'list' })
     const images = await fetch(url)
     return images.json()
@@ -30,7 +30,6 @@ export default function useMedia({ cloud_name }) {
   function getVideo({ public_id, transform_options }) {
     return cld.video_url(public_id, { ...transform_options })
   }
-
 
   function getImagesByTag(tagName) {
     return setTag(tagName)
@@ -178,6 +177,12 @@ export default function useMedia({ cloud_name }) {
       taggedImageData,
       taggedImageStatus,
       taggedImageError
+    },
+    search: {
+      search,
+      searchData,
+      searchStatus,
+      searchError
     },
     customizeTemplate,
     createTransform
